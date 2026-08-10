@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta de marca — ver instrucciones de diseño del panel dueño/gerente. */
+  --charcoal: #2b2a28;
+  --charcoal-surface: #37352f; /* superficie levemente más clara que el fondo, p. ej. header */
+  --terracota: #c1502e; /* acento único: alertas, CTA, hito activo */
+  --terracota-atencion: #d79b84; /* terracota diluida — severidad media */
+  --sand: #ede6da; /* superficie clara: tarjetas sobre charcoal */
+  --sand-dim: #d9d0c1; /* sand sombreada — bordes, separadores sobre sand */
+  --white: #ffffff;
+  --verde-tierra: #6f7d4f; /* único caso "pagado" — verde apagado, no semáforo */
+
+  --background: var(--charcoal);
+  --foreground: var(--sand);
+
+  --font-display: Cambria, Georgia, "Times New Roman", serif;
+  --font-body: Calibri, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 @theme inline {
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-surface: var(--charcoal-surface);
+  --color-terracota: var(--terracota);
+  --color-terracota-atencion: var(--terracota-atencion);
+  --color-sand: var(--sand);
+  --color-sand-dim: var(--sand-dim);
+  --color-white: var(--white);
+  --color-verde-tierra: var(--verde-tierra);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+/* Foco de teclado visible en toda la app — sin depender del estilo default del browser. */
+:focus-visible {
+  outline: 2px solid var(--terracota);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
