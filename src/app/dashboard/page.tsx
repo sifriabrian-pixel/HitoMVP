@@ -7,36 +7,7 @@ const UMBRAL_DIAS: Record<"publico" | "privado", number> = {
 };
 
 export default async function DashboardPage() {
-  // TEMPORAL: confirmar si las env vars de Supabase están presentes en este
-  // deploy antes de intentar usarlas — el 500 anterior ocurría acá, antes de
-  // llegar a las queries de abajo. Quitar junto con el resto del diagnóstico.
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold text-red-400">Faltan variables de entorno</h1>
-        <p className="mt-4 text-sm text-neutral-400">
-          NEXT_PUBLIC_SUPABASE_URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? "presente" : "FALTA"}
-          <br />
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:{" "}
-          {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "presente" : "FALTA"}
-        </p>
-      </main>
-    );
-  }
-
-  let supabase;
-  try {
-    supabase = await createClient();
-  } catch (e) {
-    return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold text-red-400">Error creando cliente de Supabase</h1>
-        <pre className="mt-4 whitespace-pre-wrap text-sm text-neutral-400">
-          {e instanceof Error ? e.message : JSON.stringify(e)}
-        </pre>
-      </main>
-    );
-  }
+  const supabase = await createClient();
 
   const { data: obras, error: errorObras } = await supabase
     .from("obras")
@@ -49,18 +20,8 @@ export default async function DashboardPage() {
     .select("obra_id, fecha_ultimo_cambio_estado, comitentes(tipo)")
     .neq("estado", "pagado");
 
-  // TEMPORAL: mostrar el error real en pantalla para diagnosticar el 500 en
-  // producción sin acceso a los logs de Vercel. Quitar una vez resuelto.
-  const error = errorObras ?? errorCertificados;
-  if (error) {
-    return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold text-red-400">Error consultando Supabase</h1>
-        <pre className="mt-4 whitespace-pre-wrap text-sm text-neutral-400">
-          {JSON.stringify(error, null, 2)}
-        </pre>
-      </main>
-    );
+  if (errorObras || errorCertificados) {
+    throw errorObras ?? errorCertificados;
   }
 
   const diasEnEstadoActual = (fecha: string) =>
