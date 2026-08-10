@@ -9,16 +9,30 @@ const UMBRAL_DIAS: Record<"publico" | "privado", number> = {
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const { data: obras } = await supabase
+  const { data: obras, error: errorObras } = await supabase
     .from("obras")
     .select("id, nombre, ubicacion, estado, comitentes(tipo)")
     .eq("estado", "activa")
     .order("nombre");
 
-  const { data: certificados } = await supabase
+  const { data: certificados, error: errorCertificados } = await supabase
     .from("certificados")
     .select("obra_id, fecha_ultimo_cambio_estado, comitentes(tipo)")
     .neq("estado", "pagado");
+
+  // TEMPORAL: mostrar el error real en pantalla para diagnosticar el 500 en
+  // producción sin acceso a los logs de Vercel. Quitar una vez resuelto.
+  const error = errorObras ?? errorCertificados;
+  if (error) {
+    return (
+      <main className="p-8">
+        <h1 className="text-2xl font-bold text-red-400">Error consultando Supabase</h1>
+        <pre className="mt-4 whitespace-pre-wrap text-sm text-neutral-400">
+          {JSON.stringify(error, null, 2)}
+        </pre>
+      </main>
+    );
+  }
 
   const diasEnEstadoActual = (fecha: string) =>
     Math.floor((Date.now() - new Date(fecha).getTime()) / (1000 * 60 * 60 * 24));
